@@ -303,5 +303,42 @@ public class PostInfoDao extends DAO {
         }
         return postList;
     }
-
+    public List<PostInfoReply> getPostReplyByPostUid(int postUid) {
+        List<PostInfoReply> replyList = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            // 获取连接
+            conn = getConnection();
+            // 定义sql语句
+            String sql = "SELECT * FROM pic_post_reply WHERE post_uid = ?";
+            // 预编译sql语句
+            ps = conn.prepareStatement(sql);
+            // 设置参数
+            ps.setInt(1, postUid);
+            // 执行查询
+            rs = ps.executeQuery();
+            // 判断结果集是否有数据
+            while (rs.next()) {
+                // 创建回复对象
+                PostInfoReply reply = new PostInfoReply();
+                // 封装回复数据
+                reply.setRid(rs.getInt("rid"));
+                reply.setPid(rs.getInt("pid"));
+                reply.setContent(rs.getString("content"));
+                reply.setPostUid(rs.getInt("post_uid"));
+                reply.setPostName(rs.getString("post_name"));
+                reply.setTimeUpdate(rs.getTimestamp("time_update"));
+                // 将回复对象添加到列表中
+                replyList.add(reply);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            // 关闭资源
+            closeResource(conn, ps, rs);
+        }
+        return replyList;
+    }
 }
