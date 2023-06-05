@@ -120,6 +120,7 @@ public class PostInfoDao extends DAO {
         }
         return result;
     }
+
     // 根据页码和每页记录数查询帖子列表数据
     public List<PostInfo> getPostListByPage(int page, int size) {
         List<PostInfo> postList = new ArrayList<>();
@@ -303,6 +304,7 @@ public class PostInfoDao extends DAO {
         }
         return postList;
     }
+
     public List<PostInfoReply> getPostReplyByPostUid(int postUid) {
         List<PostInfoReply> replyList = new ArrayList<>();
         Connection conn = null;
@@ -340,5 +342,45 @@ public class PostInfoDao extends DAO {
             closeResource(conn, ps, rs);
         }
         return replyList;
+    }
+
+    public List<PostInfo> getPostListByPostUid(int postUid) {
+        List<PostInfo> postList = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            // 获取连接
+            conn = getConnection();
+            // 定义sql语句
+            String sql = "SELECT * FROM pic_post_info WHERE post_uid = ?";
+            // 预编译sql语句
+            ps = conn.prepareStatement(sql);
+            // 设置参数
+            ps.setInt(1, postUid);
+            // 执行查询
+            rs = ps.executeQuery();
+            // 判断结果集是否有数据
+            while (rs.next()) {
+                // 创建帖子对象
+                PostInfo post = new PostInfo();
+                // 封装帖子数据
+                post.setPid(rs.getInt("pid"));
+                post.setTitle(rs.getString("title"));
+                post.setContent(rs.getString("content"));
+                post.setType(rs.getString("type"));
+                post.setPostUid(rs.getInt("post_uid"));
+                post.setPostName(rs.getString("post_name"));
+                post.setTimeUpdate(rs.getTimestamp("time_update"));
+                // 将帖子对象添加到列表中
+                postList.add(post);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            // 关闭资源
+            closeResource(conn, ps, rs);
+        }
+        return postList;
     }
 }
